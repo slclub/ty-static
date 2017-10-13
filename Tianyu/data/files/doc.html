@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>上传文件服务说明</title>
+
+</head>
+
+<body>
+
+<pre>
+
+上传服务说明：
+---------------------------
+HOST:static.tianyuonline.cn
+URL  :http://static.tianyuonline.cn/index/sysupload
+
+---------------------------------
+REQUEST: 请求
+参数说明
+文件流形式上传文件
+
+'http' :{  
+    'method' : 'POST',  
+    'header' : 'content-type:application/x-www-form-urlencoded',  
+    'content' : 文件流.'####' . json_encode($info, JSON_UNESCAPED_UNICODE),
+}
+
+     $info = {
+		"filename":"文件名(不带扩展名)",
+		"extension":"文件扩展名",
+		"basename":"文件名 带扩展名的文件名"
+     }
+
+     info 这3个参数都是必须填写的；
+
+     http.content  是文件流 和 json字符串(文件参数说明对象info)  链接在一起的
+
+----------------------------------
+RESPONSE:返回
+请求相应后json
+{
+	code:200, //接口返回正常；如是其它说明失败；
+	info:说明字符串,
+	filename:文件再服务器路径,//
+	host:文件服务器主域, // 一般是服务器域名 也特殊情况可能是ip
+	url:web文件的完整访问路径,//一般只需要用这个一个字段即可
+}	
+</pre>
+</body>
