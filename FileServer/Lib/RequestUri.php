@@ -23,7 +23,7 @@ class RequestUri{
 		$this->_controller = implode('\\', $arr);
 
 		$this->_controller = str_replace(DS, "\\", $this->_controller);
-		(!$this->_controller || $this->_controller == DS) && $this->_controller = '\\Index';
+		(!$this->_controller || in_array($this->_controller, [DS, "\\"])) && $this->_controller = '\\Index';
 
 		$this->_controller = "\\Controller". $this->_controller;
 
