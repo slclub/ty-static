@@ -106,12 +106,13 @@ $(function() {
     
                     //通过设置进度条的宽度达到效果
                     $(".progress > div").css("width", progressRate);
+                    $(".progress > div").html(progressRate)
                 })
     
                 return xhr;
             },
-            success:function(data){
-                $("#ajax_return").html(data)
+            complete:function(data){
+                $("#ajax_return").html(data.responseText)
             }
         })
     });
@@ -125,7 +126,7 @@ $(function() {
 }
 .progress {
    width: 600px;
-    height: 10px;
+    height: 20px;
     border: 1px solid #ccc;
     border-radius: 10px;
     margin: 10px 0px;
@@ -137,6 +138,7 @@ $(function() {
     height: 100%;
     background-color: yellowgreen;
     transition: all .3s ease;
+    font-size:12px;
 }
 .uploadBtn {
     border:1px solid #ddd; background:#333;color:#eee;
