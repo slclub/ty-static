@@ -48,25 +48,126 @@ class Index extends \FS\Core\Controller{
     public function up_package()
     {
         $html = '<html>
+<script src="https://cdn.bootcss.com/jquery/3.2.0/jquery.min.js"></script>
 <body>
-
 <form method="post"
 enctype="multipart/form-data" action="/up_package_upload">
-<label for="file">Filename:</label>
-<input type="file" name="file" id="file" /> 
-<br />
-<input type="submit" name="submit" value="点我啊点我啊" />
-</form>
 
+    <div class="fileUpload btn btn-primary">
+        <input id="uploadFile" placeholder="Choose File" disabled="disabled" />
+        <span class="uploadBtn">UPLOAD</span>
+        <input id="file" name="file" type="file" class="upload" />
+    </div>
+<div class="progress">
+    <div></div>
+</div>
+<br />
+<input class="upload_btn_ajax uploadBtn"  type="button" name="submit" value="SUBMIT" />
+<br />
+<!--
+<input class="uploadBtn" type="submit" name="submit" value="SUBMIT" />
+-->
+</form>
+<pre id ="ajax_return">
+----------------------------------------------------------------------------------
+    访问地址:http://static.tianyuonline.cn/stable/<span id="pre_file_name"></span>
+
+----------------------------------------------------------------------------------
+</pre>
 </body>
+<script type="text/javascript">
+    document.getElementById("file").onchange = function () {
+        document.getElementById("uploadFile").value = this.value;
+    };
+$(function() {
+    $(".upload_btn_ajax").click(function () {
+        //获取上传的文件
+        var uploadFileData = $("#file").get(0).files[0];
+    
+        $("#pre_file_name").html(uploadFileData.name)
+        var formdata = new FormData();
+    
+        formdata.append("file", uploadFileData);
+        $.ajax({
+            url: "/up_package_upload",
+            type: "post",
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            data:formdata,
+            xhr: function() {
+                var xhr = new XMLHttpRequest();
+                //使用XMLHttpRequest.upload监听上传过程，注册progress事件，打印回调函数中的event事件
+                xhr.upload.addEventListener("progress", function (e) {
+                    //console.log(e);
+                    //loaded代表上传了多少
+                    //total代表总数为多少
+                    var progressRate = (e.loaded / e.total) * 100 + "%";
+    
+                    //通过设置进度条的宽度达到效果
+                    $(".progress > div").css("width", progressRate);
+                })
+    
+                return xhr;
+            },
+            success:function(data){
+                $("#ajax_return").html(data)
+            }
+        })
+    });
+});
+</script>
+
+<style type="text/css" >
+#uploadFile {
+    width:340px;
+    height:30px;
+}
+.progress {
+   width: 600px;
+    height: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin: 10px 0px;
+    overflow: hidden;
+}
+/* 初始状态设置进度条宽度为0px */
+.progress > div {
+    width: 0px;     
+    height: 100%;
+    background-color: yellowgreen;
+    transition: all .3s ease;
+}
+.uploadBtn {
+    border:1px solid #ddd; background:#333;color:#eee;
+    padding:5px;cursor:pointer;
+    font-size:14px;font-weight:bold;
+}
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+    margin: 10px;
+}
+.fileUpload input.upload {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+</style>
 </html>';
         echo $html;
-        echo APP_PATH;
+        //echo APP_PATH;
     }
 
     public function up_package_upload(){
         
-        $base_upload_apk_path = APP_PATH."/data/files/package_apk/";
+        $base_upload_apk_path = APP_PATH."/data/stable/";
         if ($_POST['floder']){
             $base_upload_apk_path .= $_POST['floder'].'/';
         }
@@ -92,9 +193,12 @@ enctype="multipart/form-data" action="/up_package_upload">
             }
         }
 
-        echo "2秒后！马上跳转";
-        sleep(2);
-        Header("Location:http://static.tianyuonline.cn/files/package_apk/");//直接跳转
+        echo "下载地址：http://static.tianyuonline.cn/stable/{$_FILES["file"]["name"]}";
+        echo "<br/>2秒后！马上跳转.<br>";
+        sleep(10);
+        //Header("Location:http://static.tianyuonline.cn/");//直接跳转
     }
     
 }
+
+
