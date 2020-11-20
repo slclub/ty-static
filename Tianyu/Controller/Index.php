@@ -23,14 +23,23 @@ class Index extends \FS\Core\Controller{
 	    	$ext = $store->decodeFile($info[1], 'extension');
 
 	    	if ($err = \checkErr($ext)) {
-			file_put_contents('/tmp/static.log', print_r([$filename, $streamData, $ext, date('m-d H:i:s')],1), 8);
+			    file_put_contents('/tmp/static.log', print_r(["ERROR", $filename,  $ext, date('m-d H:i:s')],1), 8);
 	    		return $this->Response->writeWithArray($err);
 	    	}
             $tempfilename = $store->decodeFile($info[1], 'filename');
             if(strpos($tempfilename,"maiDian") > 0)
                 $filename = $store->getAttachFilePath($tempfilename, $ext);
             else
-                $filename = $store->getAttachFilePath(null, $ext);
+                $filename = $store->getAttachFilePath($tempfilename, $ext);
+
+            // 如果文件存在则 取消上传
+            if (file_exists($filename)) {
+    	        $this->Response->writeWith('info', 'file is empty, upload fail ');
+    	        $this->Response->writeWith('code', '1200');
+
+  		        file_put_contents('/tmp/static.log', "[UPLOAD_FILE][EXIST]FILE[$filename]", 8);
+                return;
+            }
 	    	header("Content-type:text/html;charset=utf-8");
 	        $ret = file_put_contents($filename, $info[0], true);  
             $logfileName = $store->getAttachFilePath("maidianlog.txt", $ext);
@@ -41,7 +50,7 @@ class Index extends \FS\Core\Controller{
 	        
 	    }  
   		
-  		file_put_contents('/tmp/static.log', print_r([$filename, $streamData, $ret, date('m-d H:i:s')],1), 8);
+  		file_put_contents('/tmp/static.log', "[UPLOAD_FILE][OK]FILE[$filename]", 8);
 		$this->Response->writeWithArray(FileStore::getWebFileInfo($filename));
 	}
 

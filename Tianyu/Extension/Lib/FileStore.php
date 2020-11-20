@@ -12,15 +12,16 @@ class FileStore{
 		return APP_PATH . DS . 'data' . DS . 'files';
 	}
 
-	public function getAttachFilePath($file = null, $ext = null){
+	public function getAttachFilePath($file = null, $ext = null, $timestamp=null){
 
 		if (!$file) {
 			$file = $this->uniqid();
 		}
+		($ext && !pathinfo($file, PATHINFO_EXTENSION)) && $file .= '.' . $ext;
+        // 使用文件的前缀时间戳作为分隔目录参数
+        $timestamp = intval(substr($file,0,strpos($file, '.')) );
 
-		$ext && $file .= '.' . $ext;
-
-		$realFile = $this->attachBasePath(). DS . self::timeFloderName() . DS . $file;
+		$realFile = $this->attachBasePath(). DS . self::timeFloderName($timestamp) . DS . $file;
 		self::mk_dir(dirname($realFile));
 		return $realFile;
 	}
@@ -94,8 +95,8 @@ class FileStore{
 		}
 	}
 
-	public static function timeFloderName(){
+	public static function timeFloderName($timestamp = null){
 
-		return date('Y/m/d');
+		return date('Y/m/d', $timestamp > 1262275200 ? $timestamp: time());
 	}
 }
